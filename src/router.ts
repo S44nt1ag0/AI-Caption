@@ -4,9 +4,13 @@ const router = Router();
 import HomeController from "./Controllers/HomeController";
 import Createuser from "./Controllers/Users/CreateUser";
 import LoginUser from "./Controllers/Users/LoginUser";
+import MeUser from "./Controllers/Users/MeUser";
+
+import { authMiddleware } from "./Middleware/Auth";
 
 router.get("/", HomeController.index);
 router.post("/v1/create", Createuser.create);
 router.post("/v1/login", LoginUser.login);
+router.get("/v1/me", authMiddleware, MeUser.meUser);
 
 export default router;
