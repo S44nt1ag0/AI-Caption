@@ -5,4 +5,5 @@ export default interface IUserRepository {
   findById(id: string): Promise<IUser | null>;
   create(user: IUser): Promise<IUser>;
   findByEmail(email: string): Promise<IUser | null>;
+  isPremiumUser(id: string): Promise<boolean>;
 }

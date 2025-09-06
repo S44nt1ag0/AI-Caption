@@ -1,4 +1,8 @@
 import { Request, Response } from "express";
+import {
+  ICaptionSuccess,
+  ICaptionError,
+} from "../../Interfaces/ICaptionService";
 import CaptionService from "../../Services/CaptionService";
 
 class CaptionExtract {
@@ -15,7 +19,13 @@ class CaptionExtract {
       return res.status(400).json({ error: "Missing required fields." });
     }
 
-    const result = await CaptionService.extract(url);
+    const result: ICaptionSuccess | ICaptionError =
+      await CaptionService.extract(url, userId);
+
+    if ("error" in result && result.error) {
+      return res.status(404).json(result);
+    }
+
     return res.json(result);
   };
 }

@@ -25,4 +25,9 @@ export default class UserRepository implements IUserRepository {
     const createdUser = await User.create(user);
     return createdUser;
   }
+
+  async isPremiumUser(id: string): Promise<boolean> {
+    const user = await User.findByPk(id);
+    return user.premium === true;
+  }
 }

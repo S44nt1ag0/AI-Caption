@@ -1,8 +1,16 @@
 import axios, { AxiosInstance } from "axios";
 import { refineCaptions } from "../Helpers/utils";
+import UserRepository from "../Repository/UserRepository";
+
 import "dotenv/config";
 
 class CaptionService {
+  private userRepository: UserRepository;
+
+  constructor() {
+    this.userRepository = new UserRepository();
+  }
+
   client(): AxiosInstance {
     return axios.create({
       baseURL: "https://www.youtube.com",
@@ -13,7 +21,7 @@ class CaptionService {
     });
   }
 
-  async extract(url: string) {
+  async extract(url: string, id_user: string) {
     const videoId = url?.split("v=")?.[1] || null;
 
     if (!videoId) return null;
@@ -32,10 +40,27 @@ class CaptionService {
         }
       );
 
+      if (!data) {
+        return { error: true, message: "Erro to find Caption." };
+      }
+
+      const title: string = data?.videoDetails?.title || null;
+      const lengthSeconds: number = data?.videoDetails?.lengthSeconds || null;
+
+      if (lengthSeconds > 600) {
+        const isPremium = await this.userRepository.isPremiumUser(id_user);
+        if (!isPremium) {
+          return {
+            error: true,
+            message: "Videos longer than 10 minutes are premium only.",
+          };
+        }
+      }
+
       const tracklist = data?.captions?.playerCaptionsTracklistRenderer;
 
       if (!tracklist?.captionTracks?.length) {
-        return;
+        return { error: true, message: "Erro to find Caption." };
       }
 
       const track =
@@ -45,10 +70,9 @@ class CaptionService {
       const { data: caption } = await axios.get(track.baseUrl);
       const cleanText = refineCaptions(caption);
 
-      return { body: cleanText };
+      return { title, body: cleanText };
     } catch (error) {
-      console.error("Erro ao extrair legendas:", error);
-      return null;
+      return { error: true, message: "Erro to find Caption." };
     }
   }
 }
