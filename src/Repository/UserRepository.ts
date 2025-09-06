@@ -11,6 +11,11 @@ export default class UserRepository implements IUserRepository {
     return user.password;
   }
 
+  async findById(id: string): Promise<IUser | null> {
+    const user = await User.findByPk(id);
+    return user;
+  }
+
   async findByEmail(email: string): Promise<IUser | null> {
     const emailExists = await User.findOne({ where: { email } });
     return emailExists;
