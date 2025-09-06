@@ -1,12 +1,12 @@
 import IUser from "../Entities/User";
 
 export class UserDTO {
-  static toResponse(user: IUser) {
+  static basicData(user: IUser) {
     return {
       id: user.id,
       name: user.name,
       email: user.email,
-      createdAt: user.createdAt,
+      premium: user.premium,
     };
   }
 }
