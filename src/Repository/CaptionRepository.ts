@@ -7,4 +7,11 @@ export default class CaptionRepository implements ICaptionRepository {
     const createdUser = await Caption.create(caption);
     return createdUser;
   }
+
+  async findAll(userId: string): Promise<ICaption[]> {
+    return await Caption.findAll({
+      where: { user_id: userId },
+      order: [["createdAt", "DESC"]],
+    });
+  }
 }
