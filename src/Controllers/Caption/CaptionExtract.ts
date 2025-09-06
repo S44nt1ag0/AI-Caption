@@ -1,11 +1,15 @@
 import { Request, Response } from "express";
-import {
-  ICaptionSuccess,
-  ICaptionError,
-} from "../../Interfaces/ICaptionService";
 import CaptionService from "../../Services/CaptionService";
+import CaptionRepository from "../../Repository/CaptionRepository";
+import ICaption from "../../Entities/Caption";
 
 class CaptionExtract {
+  private captionRepository: CaptionRepository;
+
+  constructor() {
+    this.captionRepository = new CaptionRepository();
+  }
+
   index = async (req: Request, res: Response) => {
     const userId = req.userId;
 
@@ -19,14 +23,51 @@ class CaptionExtract {
       return res.status(400).json({ error: "Missing required fields." });
     }
 
-    const result: ICaptionSuccess | ICaptionError =
-      await CaptionService.extract(url, userId);
+    const result = await CaptionService.extract(url, userId);
 
     if ("error" in result && result.error) {
-      return res.status(404).json(result);
+      try {
+        const data: ICaption = {
+          user_id: userId,
+          url: url,
+          success: false,
+          body: null,
+        };
+
+        const insertCaption = await this.captionRepository.create(data);
+
+        if (!insertCaption) {
+          throw Error("Error to insert fail ocurrence to Caption.");
+        }
+
+        return res.status(404).json(result);
+      } catch (error) {
+        return res
+          .status(500)
+          .json({ error: true, message: "Internal server error." });
+      }
     }
 
-    return res.json(result);
+    try {
+      const data: ICaption = {
+        user_id: userId,
+        url: url,
+        success: true,
+        body: result?.body,
+      };
+
+      const insertCaption = await this.captionRepository.create(data);
+
+      if (!insertCaption) {
+        throw Error("Error to insert Success ocurrence to Caption.");
+      }
+
+      return res.json(result);
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error: true, message: "Internal server error." });
+    }
   };
 }
 
