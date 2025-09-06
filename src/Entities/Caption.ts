@@ -1,5 +1,5 @@
 export default interface ICaption {
-  id: string;
+  id?: string;
   user_id: string;
   url: string;
   success?: boolean;
