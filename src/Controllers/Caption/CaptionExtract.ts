@@ -26,6 +26,10 @@ class CaptionExtract {
     const result = await CaptionService.extract(url, userId);
 
     if ("error" in result && result.error) {
+      if (result.message == "Videos longer than 10 minutes are premium only.") {
+        return res.status(404).json(result);
+      }
+
       try {
         const data: ICaption = {
           user_id: userId,
