@@ -26,9 +26,29 @@ export async function comparePassword(password: string, hash: string) {
 export function refineCaptions(captionXml: string): string {
   if (!captionXml) return "";
 
+  const decodeHtmlEntities = (str: string): string => {
+    const entities: { [key: string]: string } = {
+      "&quot;": '"',
+      "&amp;": "&",
+      "&lt;": "<",
+      "&gt;": ">",
+      "&nbsp;": " ",
+      "&apos;": "'",
+      "&#39;": "'",
+      "&#34;": '"',
+      "&#x27;": "'",
+      "&#x22;": '"',
+    };
+
+    return str.replace(/&(?:[a-z]+|#\d+|#x[\da-f]+);/gi, (match) => {
+      return entities[match] || match;
+    });
+  };
+
   const plainText = captionXml
     .match(/<p [^>]*>(.*?)<\/p>/g)
     ?.map((p) => p.replace(/<[^>]+>/g, ""))
+    .map(decodeHtmlEntities)
     .join("\n");
 
   if (!plainText) return "";
@@ -40,5 +60,16 @@ export function refineCaptions(captionXml: string): string {
 
   const refined = lines.join(" ");
 
-  return refined.replace(/\s+/g, " ");
+  return refined
+    .replace(/\s*>>\s*/g, " ")
+    .replace(/\[\s*__\s*\]/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/\s([.,!?;:])/g, "$1")
+    .replace(/([.,!?;:])([a-zA-Z])/g, "$1 $2")
+    .replace(/([a-zA-Z])([.,!?;:])/g, "$1$2")
+    .replace(/([.,!?;:])\s+/g, "$1 ")
+    .replace(/([.,!?;:])([.,!?;:])+/g, "$1")
+    .replace(/\s+$/g, "")
+    .replace(/^\s+/g, "")
+    .trim();
 }
