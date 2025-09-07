@@ -21,13 +21,13 @@ export function authMiddleware(
   const authHeader = req.headers["authorization"];
 
   if (!authHeader) {
-    return res.status(401).json({ error: "Token não fornecido" });
+    return res.status(401).json({ error: "Token not provided." });
   }
 
   const token = authHeader.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ error: "Token inválido" });
+    return res.status(401).json({ error: "Invalid token." });
   }
 
   try {
@@ -37,6 +37,6 @@ export function authMiddleware(
     req.userId = decoded.id;
     next();
   } catch (err) {
-    return res.status(401).json({ error: "Token expirado ou inválido" });
+    return res.status(401).json({ error: "Expired or invalid token." });
   }
 }
