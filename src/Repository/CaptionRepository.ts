@@ -14,4 +14,11 @@ export default class CaptionRepository implements ICaptionRepository {
       order: [["createdAt", "DESC"]],
     });
   }
+
+  async findCaptionById(id: string): Promise<ICaption | null> {
+    return await Caption.findOne({
+      where: { id: id }
+    });
+  }
+
 }
