@@ -62,7 +62,7 @@ class CaptionExtract {
       };
 
       const insertCaption = await this.captionRepository.create(data);
-      console.log(insertCaption);
+
       if (!insertCaption) {
         throw Error("Error to insert Success ocurrence to Caption.");
       }
