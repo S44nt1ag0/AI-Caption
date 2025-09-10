@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import CaptionService from "../../Services/CaptionService";
 import CaptionRepository from "../../Repository/CaptionRepository";
 import ICaption from "../../Entities/Caption";
+import { CaptionExtractDTO } from "../../DTO/CaptionExtractDTO";
 
 class CaptionExtract {
   private captionRepository: CaptionRepository;
@@ -61,12 +62,12 @@ class CaptionExtract {
       };
 
       const insertCaption = await this.captionRepository.create(data);
-
+      console.log(insertCaption);
       if (!insertCaption) {
         throw Error("Error to insert Success ocurrence to Caption.");
       }
 
-      return res.json(result);
+      return res.json({ ...CaptionExtractDTO.basicData(insertCaption) });
     } catch (error) {
       return res
         .status(500)
