@@ -4,6 +4,8 @@ export default interface ICaption {
   url: string;
   success?: boolean;
   body?: string;
+  thumbnail?: string;
+  title?: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;

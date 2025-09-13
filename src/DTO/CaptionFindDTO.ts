@@ -6,6 +6,8 @@ export class CaptionFindDTO {
       success: caption.success,
       url: caption.url,
       body: caption.body,
+      thumbnail: caption.thumbnail,
+      title: caption.title,
     };
   }
 }

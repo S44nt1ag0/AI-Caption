@@ -8,6 +8,8 @@ interface CaptionAttributes {
   url: string;
   success: boolean;
   body: string;
+  thumbnail: string;
+  title: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
@@ -30,6 +32,8 @@ class Caption
   public url!: string;
   public success!: boolean;
   public body!: string;
+  public thumbnail!: string;
+  public title!: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -67,6 +71,14 @@ Caption.init(
       defaultValue: false,
     },
     body: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    thumbnail: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    title: {
       type: DataTypes.TEXT,
       allowNull: true,
     },

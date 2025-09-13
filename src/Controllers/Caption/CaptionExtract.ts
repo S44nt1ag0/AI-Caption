@@ -37,6 +37,8 @@ class CaptionExtract {
           url: url,
           success: false,
           body: null,
+          title: result?.title,
+          thumbnail: result?.thumbnail,
         };
 
         const insertCaption = await this.captionRepository.create(data);
@@ -59,6 +61,8 @@ class CaptionExtract {
         url: url,
         success: true,
         body: result?.body,
+        title: result?.title,
+        thumbnail: result?.thumbnail,
       };
 
       const insertCaption = await this.captionRepository.create(data);
