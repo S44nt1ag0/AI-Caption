@@ -45,6 +45,7 @@ class CaptionService {
       }
 
       const title: string = data?.videoDetails?.title || null;
+      const thumbnail = data.videoDetails.thumbnail.thumbnails[3].url;
       const lengthSeconds: number = data?.videoDetails?.lengthSeconds || null;
 
       if (lengthSeconds > 600) {
@@ -70,7 +71,7 @@ class CaptionService {
       const { data: caption } = await axios.get(track.baseUrl);
       const cleanText = refineCaptions(caption);
 
-      return { title, body: cleanText };
+      return { title, thumbnail, body: cleanText };
     } catch (error) {
       return { error: true, message: "Erro to find Caption." };
     }
