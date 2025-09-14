@@ -7,8 +7,7 @@ class GeminiService {
   async getSummary(body: string): Promise<ISummary> {
     if (!body || body.length < 10) {
       return {
-        error: true,
-        message: "Invalid body.",
+        body: null,
       };
     }
 
