@@ -1,4 +1,3 @@
 export interface IGemini {
-  text?: string;
-  error?: string
+  text: string;
 }
