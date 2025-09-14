@@ -1,10 +1,9 @@
 import axios, { AxiosInstance } from "axios";
-import { refineCaptions } from "../Helpers/utils";
 import UserRepository from "../Repository/UserRepository";
-
-import "dotenv/config";
 import { geminiService } from "./SummaryService";
 import { ISummary } from "../Interfaces/ISummary";
+import { transcriptService } from "./TranscriptService";
+import { ITranscript } from "../Interfaces/ITranscript";
 
 class CaptionService {
   private userRepository: UserRepository;
@@ -49,6 +48,9 @@ class CaptionService {
       const title: string = data?.videoDetails?.title || null;
       const thumbnail = data.videoDetails.thumbnail.thumbnails[3].url;
       const lengthSeconds: number = data?.videoDetails?.lengthSeconds || null;
+      const lang: string =
+        data?.captions.playerCaptionsTracklistRenderer.captionTracks[0]
+          .languageCode || "pt";
 
       if (lengthSeconds > 600) {
         const isPremium = await this.userRepository.isPremiumUser(id_user);
@@ -60,22 +62,20 @@ class CaptionService {
         }
       }
 
-      const tracklist = data?.captions?.playerCaptionsTracklistRenderer;
+      const transcript: ITranscript = await transcriptService.transcript(
+        videoId,
+        lang
+      );
 
-      if (!tracklist?.captionTracks?.length) {
-        return { error: true, message: "Erro to find Caption." };
+      if (!transcript.text) {
+        throw Error("Erro to find Caption.");
       }
 
-      const track =
-        tracklist.captionTracks.find((t) => t.languageCode === "pt") ||
-        tracklist.captionTracks[0];
+      const summarize: ISummary = await geminiService.getSummary(
+        transcript.text
+      );
 
-      const { data: caption } = await axios.get(track.baseUrl);
-      const cleanText = refineCaptions(caption);
-
-      const summarize: ISummary = await geminiService.getSummary(cleanText);
-
-      return { title, thumbnail, body: summarize?.body || cleanText };
+      return { title, thumbnail, body: summarize?.body || transcript?.text };
     } catch (error) {
       return { error: true, message: "Erro to find Caption." };
     }
