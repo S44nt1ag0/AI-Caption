@@ -73,7 +73,7 @@ class CaptionService {
       );
 
       if (!transcript.text) {
-        throw Error("Erro to find Caption");
+        throw Error("Erro to find Caption.");
       }
 
       const summarize: ISummary = await geminiService.getSummary(
