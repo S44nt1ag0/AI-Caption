@@ -12,23 +12,11 @@ class GeminiService {
       };
     }
 
-    try {
-      const Summary: IGemini = await GeminiApi(body);
+    const Summary: IGemini = await GeminiApi(body);
 
-      if (Summary.error) {
-        throw Error(Summary.error);
-      }
-
-      return {
-        body: Summary.text,
-      };
-      
-    } catch {
-      return {
-        error: true,
-        message: "Internal server error.",
-      };
-    }
+    return {
+      body: Summary.text,
+    };
   }
 }
 
