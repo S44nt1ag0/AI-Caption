@@ -3,6 +3,8 @@ import { refineCaptions } from "../Helpers/utils";
 import UserRepository from "../Repository/UserRepository";
 
 import "dotenv/config";
+import { geminiService } from "./SummaryService";
+import { ISummary } from "../Interfaces/ISummary";
 
 class CaptionService {
   private userRepository: UserRepository;
@@ -71,7 +73,9 @@ class CaptionService {
       const { data: caption } = await axios.get(track.baseUrl);
       const cleanText = refineCaptions(caption);
 
-      return { title, thumbnail, body: cleanText };
+      const summarize: ISummary = await geminiService.getSummary(cleanText);
+
+      return { title, thumbnail, body: summarize?.body || cleanText };
     } catch (error) {
       return { error: true, message: "Erro to find Caption." };
     }
