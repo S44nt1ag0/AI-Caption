@@ -14,6 +14,6 @@ export async function GeminiApi(body: string): Promise<IGemini> {
 
     return { text: response?.text };
   } catch {
-    return { error: "Error gemini summary." };
+    return { text: null };
   }
 }
