@@ -1,5 +1,7 @@
 const bcrypt = require("bcrypt");
 import "dotenv/config";
+const protobuf = require("protobufjs");
+const Buffer = require("buffer").Buffer;
 
 export default async function hashPassword(password: string) {
   const saltRounds = 10;
@@ -23,53 +25,33 @@ export async function comparePassword(password: string, hash: string) {
   return await bcrypt.compare(passwordWithSecret, hash);
 }
 
-export function refineCaptions(captionXml: string): string {
-  if (!captionXml) return "";
+export function getBase64Protobuf(message) {
+  const root = protobuf.Root.fromJSON({
+    nested: {
+      Message: {
+        fields: {
+          param1: { id: 1, type: "string" },
+          param2: { id: 2, type: "string" },
+        },
+      },
+    },
+  });
+  const MessageType = root.lookupType("Message");
+  const buffer = MessageType.encode(message).finish();
+  return Buffer.from(buffer).toString("base64");
+}
 
-  const decodeHtmlEntities = (str: string): string => {
-    const entities: { [key: string]: string } = {
-      "&quot;": '"',
-      "&amp;": "&",
-      "&lt;": "<",
-      "&gt;": ">",
-      "&nbsp;": " ",
-      "&apos;": "'",
-      "&#39;": "'",
-      "&#34;": '"',
-      "&#x27;": "'",
-      "&#x22;": '"',
-    };
+export function transcriptToPlainText(segments: any[]): string {
+  return segments
+    .map((s) => {
+      const seg = s.transcriptSegmentRenderer;
+      if (!seg) return "";
 
-    return str.replace(/&(?:[a-z]+|#\d+|#x[\da-f]+);/gi, (match) => {
-      return entities[match] || match;
-    });
-  };
-
-  const plainText = captionXml
-    .match(/<p [^>]*>(.*?)<\/p>/g)
-    ?.map((p) => p.replace(/<[^>]+>/g, ""))
-    .map(decodeHtmlEntities)
-    .join("\n");
-
-  if (!plainText) return "";
-
-  const lines = plainText
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line);
-
-  const refined = lines.join(" ");
-
-  return refined
-    .replace(/\s*>>\s*/g, " ")
-    .replace(/\[\s*__\s*\]/g, "")
-    .replace(/\s+/g, " ")
-    .replace(/\s([.,!?;:])/g, "$1")
-    .replace(/([.,!?;:])([a-zA-Z])/g, "$1 $2")
-    .replace(/([a-zA-Z])([.,!?;:])/g, "$1$2")
-    .replace(/([.,!?;:])\s+/g, "$1 ")
-    .replace(/([.,!?;:])([.,!?;:])+/g, "$1")
-    .replace(/\s+$/g, "")
-    .replace(/^\s+/g, "")
-    .trim();
+      return seg.snippet?.runs
+        ?.map((run: any) => run.text)
+        .join("")
+        .trim();
+    })
+    .filter(Boolean)
+    .join(" ");
 }
