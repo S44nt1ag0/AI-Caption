@@ -48,9 +48,14 @@ class CaptionService {
       const title: string = data?.videoDetails?.title || null;
       const thumbnail = data.videoDetails.thumbnail.thumbnails[3].url;
       const lengthSeconds: number = data?.videoDetails?.lengthSeconds || null;
-      const lang: string =
-        data?.captions.playerCaptionsTracklistRenderer.captionTracks[0]
-          .languageCode || "pt";
+
+      const tracks =
+        data?.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
+
+      const lang =
+        tracks.find((t: any) => t.languageCode === "en")?.languageCode ||
+        tracks.find((t: any) => t.languageCode === "pt")?.languageCode ||
+        "pt";
 
       if (lengthSeconds > 600) {
         const isPremium = await this.userRepository.isPremiumUser(id_user);

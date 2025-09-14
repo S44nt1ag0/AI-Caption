@@ -7,9 +7,17 @@ const ai = new GoogleGenAI({
 
 export async function GeminiApi(body: string): Promise<IGemini> {
   try {
+    const prompt = `
+Resuma o seguinte conteúdo em português, de forma clara e direta.
+Não explique nada além do resumo. 
+Não repita instruções, apenas traga o resumo puro:
+
+"${body}"
+`;
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-lite",
-      contents: `summarize this ${body}`,
+      contents: prompt,
     });
 
     return { text: response?.text };
