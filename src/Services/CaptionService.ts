@@ -4,6 +4,8 @@ import { geminiService } from "./SummaryService";
 import { ISummary } from "../Interfaces/ISummary";
 import { transcriptService } from "./TranscriptService";
 import { ITranscript } from "../Interfaces/ITranscript";
+import { HttpsProxyAgent } from "https-proxy-agent";
+import { proxyConfig } from "../Helpers/utils";
 
 class CaptionService {
   private userRepository: UserRepository;
@@ -12,13 +14,14 @@ class CaptionService {
     this.userRepository = new UserRepository();
   }
 
-  client(): AxiosInstance {
+  async client(): Promise<AxiosInstance> {
+    const proxy = proxyConfig();
+
+    const httpsAgent = new HttpsProxyAgent(proxy);
+
     return axios.create({
-      baseURL: "https://www.youtube.com",
       timeout: 10000,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      httpsAgent,
     });
   }
 
@@ -28,8 +31,10 @@ class CaptionService {
     if (!videoId) return null;
 
     try {
-      const { data } = await this.client().post(
-        `/youtubei/v1/player?key=${process.env.INNERTUBE_API_KEY}`,
+      const client = await this.client();
+
+      const { data } = await client.post(
+        `https://www.youtube.com/youtubei/v1/player?key=${process.env.INNERTUBE_API_KEY}`,
         {
           context: {
             client: {
@@ -38,6 +43,11 @@ class CaptionService {
             },
           },
           videoId: videoId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
 
