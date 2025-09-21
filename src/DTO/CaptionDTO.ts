@@ -4,7 +4,8 @@ export class CaptionDTO {
   static basicData(caption: ICaption) {
     return {
       id: caption.id,
-      url: caption.url,
+      createdAt: caption.createdAt,
+      title: caption.title,
     };
   }
 
