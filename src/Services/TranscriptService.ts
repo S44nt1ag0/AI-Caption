@@ -1,12 +1,19 @@
 import axios, { AxiosInstance } from "axios";
 import { getBase64Protobuf, transcriptToPlainText } from "../Helpers/utils";
 import { ITranscript } from "../Interfaces/ITranscript";
+import { HttpsProxyAgent } from "https-proxy-agent";
+import { proxyConfig } from "../Helpers/utils";
 
 class TranscriptService {
-  client(): AxiosInstance {
+  async client(): Promise<AxiosInstance> {
+    const proxy = proxyConfig();
+
+    const httpsAgent = new HttpsProxyAgent(proxy);
+
     return axios.create({
       baseURL: "https://www.youtube.com",
       timeout: 10000,
+      httpsAgent,
       headers: {
         "Content-Type": "application/json",
       },
@@ -39,10 +46,9 @@ class TranscriptService {
         params,
       };
 
-      const response = await this.client().post(
-        "/youtubei/v1/get_transcript",
-        data
-      );
+      const client = await this.client();
+
+      const response = await client.post("/youtubei/v1/get_transcript", data);
 
       const segments =
         response.data.actions?.[0]?.updateEngagementPanelAction?.content
