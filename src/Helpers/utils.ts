@@ -55,3 +55,13 @@ export function transcriptToPlainText(segments: any[]): string {
     .filter(Boolean)
     .join(" ");
 }
+
+export function proxyConfig() {
+  const proxy = {
+    host: process.env.PROXY_HOST || "",
+    port: parseInt(process.env.PROXY_PORT) || 0,
+    username: process.env.PROXY_USER || "",
+    password: process.env.PROXY_PASS || "",
+  };
+  return `http://${proxy.username}:${proxy.password}@${proxy.host}:${proxy.port}`;
+}
